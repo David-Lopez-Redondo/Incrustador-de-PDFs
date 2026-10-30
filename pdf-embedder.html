@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PDF Embedder</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#07060f;--panel:#100e1f;--line:#2a2650;--tx:#e8e6ff;--mut:#8a86b8;--cy:#18f0ff;--mg:#ff2bd6;--gr:#39ff88;--rd:#ff4d6d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:radial-gradient(900px 500px at 15% -10%,#2b0f4d55,transparent),radial-gradient(800px 500px at 100% 10%,#00e5ff22,transparent),var(--bg);color:var(--tx);font:400 15px/1.5 Inter,system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;padding:32px 16px 24px}
+main{width:100%;max-width:720px}
+h1{font:800 clamp(26px,5vw,38px)/1.1 Orbitron,Inter,sans-serif;margin:0 0 6px;letter-spacing:.04em;color:#fff;text-shadow:0 0 8px var(--cy),0 0 24px var(--cy),0 0 48px #18f0ff66}
+.sub{color:var(--mut);margin:0 0 28px}
+.card{background:linear-gradient(180deg,#14112a,var(--panel));border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
+.card h2{font:600 14px/1 Orbitron,Inter,sans-serif;letter-spacing:.08em;margin:0 0 14px;color:var(--cy);text-shadow:0 0 10px #18f0ff88}
+.card.mg h2{color:var(--mg);text-shadow:0 0 10px #ff2bd688}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:26px 14px;text-align:center;color:var(--mut);cursor:pointer;transition:.2s}
+.drop:hover,.drop.over,.drop:focus-visible{border-color:var(--cy);color:var(--tx);box-shadow:0 0 0 1px var(--cy),0 0 22px #18f0ff55 inset,0 0 22px #18f0ff44;outline:none}
+.mg .drop:hover,.mg .drop.over,.mg .drop:focus-visible{border-color:var(--mg);box-shadow:0 0 0 1px var(--mg),0 0 22px #ff2bd655 inset,0 0 22px #ff2bd644}
+.drop b{color:var(--tx)}
+.chip{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#0b0918}
+.chip .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip .s{color:var(--mut);font-size:13px;white-space:nowrap}
+.x{background:none;border:1px solid var(--line);color:var(--mut);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:16px;line-height:1}
+.x:hover{color:var(--rd);border-color:var(--rd);box-shadow:0 0 12px #ff4d6d66}
+.btn{font:600 14px Orbitron,Inter,sans-serif;letter-spacing:.06em;border-radius:10px;padding:12px 20px;cursor:pointer;border:1.5px solid var(--cy);color:var(--cy);background:#18f0ff12;transition:.2s}
+.btn:hover:not(:disabled){background:var(--cy);color:#04121a;box-shadow:0 0 24px #18f0ffaa}
+.btn.mg{border-color:var(--mg);color:var(--mg);background:#ff2bd612}
+.btn.mg:hover:not(:disabled){background:var(--mg);color:#1a0415;box-shadow:0 0 24px #ff2bd6aa}
+.btn.gr{border-color:var(--gr);color:var(--gr);background:#39ff8812}
+.btn.gr:hover:not(:disabled){background:var(--gr);color:#03150a;box-shadow:0 0 24px #39ff88aa}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn:focus-visible,.x:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.row .btn.main{flex:1;min-width:200px;padding:15px 20px;font-size:15px}
+#msg{margin-top:14px;font-size:14px;min-height:20px}
+.ok{color:var(--gr)}.err{color:var(--rd)}.inf{color:var(--mut)}
+footer{margin-top:auto;padding-top:28px;color:var(--mut);font-size:13px;letter-spacing:.04em;text-align:center}
+footer span{color:var(--mg);text-shadow:0 0 10px #ff2bd699}
+input[type=file]{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>PDF EMBEDDER</h1>
+  <p class="sub">Incrusta Word, Excel, PowerPoint, imágenes o cualquier archivo dentro de un PDF. Todo se procesa en tu navegador: nada se sube a ningún servidor.</p>
+
+  <section class="card">
+    <h2>1. DOCUMENTO PDF</h2>
+    <div class="drop" id="dropPdf" tabindex="0" role="button">Arrastra aquí tu PDF o <b>haz clic para buscarlo</b></div>
+    <input type="file" id="inPdf" accept="application/pdf,.pdf">
+    <div id="pdfInfo"></div>
+  </section>
+
+  <section class="card mg">
+    <h2>2. ARCHIVOS A INCRUSTAR</h2>
+    <div class="drop" id="dropFiles" tabindex="0" role="button">Arrastra aquí los archivos o <b>haz clic para buscarlos</b></div>
+    <input type="file" id="inFiles" multiple>
+    <div id="list"></div>
+  </section>
+
+  <div class="row">
+    <button class="btn main" id="go" disabled>INCRUSTAR ARCHIVOS</button>
+    <button class="btn gr" id="dl" disabled>DESCARGAR PDF</button>
+    <button class="btn mg" id="reset">LIMPIAR</button>
+  </div>
+  <div id="msg" class="inf" role="status" aria-live="polite"></div>
+</main>
+<footer>Software developed by <span>DLR</span></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let pdfFile=null, files=[], outBlob=null, outName='';
+
+const fmt=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB';
+const say=(t,c)=>{$('msg').textContent=t;$('msg').className=c||'inf'};
+
+function chip(name,size,onRemove){
+  const d=document.createElement('div');d.className='chip';
+  const n=document.createElement('span');n.className='n';n.textContent=name;n.title=name;
+  const s=document.createElement('span');s.className='s';s.textContent=fmt(size);
+  const x=document.createElement('button');x.className='x';x.textContent='×';x.setAttribute('aria-label','Quitar '+name);x.onclick=onRemove;
+  d.append(n,s,x);return d;
+}
+function render(){
+  $('pdfInfo').replaceChildren(...(pdfFile?[chip(pdfFile.name,pdfFile.size,()=>{pdfFile=null;invalidate();render()})]:[]));
+  $('list').replaceChildren(...files.map((f,i)=>chip(f.name,f.size,()=>{files.splice(i,1);invalidate();render()})));
+  $('go').disabled=!(pdfFile&&files.length);
+  $('dl').disabled=!outBlob;
+}
+function invalidate(){outBlob=null;$('dl').disabled=true}
+function setPdf(f){
+  if(!f)return;
+  if(!/\.pdf$/i.test(f.name)&&f.type!=='application/pdf'){say('El archivo seleccionado no es un PDF.','err');return}
+  pdfFile=f;invalidate();say('');render();
+}
+function addFiles(list){
+  for(const f of list){if(!files.some(x=>x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified))files.push(f)}
+  invalidate();say('');render();
+}
+function wire(drop,input,cb){
+  drop.onclick=()=>input.click();
+  drop.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click()}};
+  input.onchange=()=>{cb(input.files);input.value=''};
+  ['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over')}));
+  ['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over')}));
+  drop.addEventListener('drop',e=>cb(e.dataTransfer.files));
+}
+wire($('dropPdf'),$('inPdf'),l=>setPdf(l[0]));
+wire($('dropFiles'),$('inFiles'),addFiles);
+
+$('go').onclick=async()=>{
+  $('go').disabled=true;say('Procesando…');
+  try{
+    const doc=await PDFLib.PDFDocument.load(await pdfFile.arrayBuffer(),{ignoreEncryption:false});
+    for(const f of files){
+      await doc.attach(new Uint8Array(await f.arrayBuffer()),f.name,{
+        mimeType:f.type||'application/octet-stream',
+        description:f.name,
+        creationDate:new Date(),
+        modificationDate:new Date(f.lastModified||Date.now())
+      });
+    }
+    const bytes=await doc.save();
+    outBlob=new Blob([bytes],{type:'application/pdf'});
+    outName=pdfFile.name.replace(/\.pdf$/i,'')+'_incrustado.pdf';
+    say('✅ '+files.length+' archivo(s) incrustado(s) en '+outName+' ('+fmt(outBlob.size)+'). Ya puedes descargarlo.','ok');
+  }catch(e){
+    say('❌ Error: '+(e&&e.message?e.message:e),'err');
+  }
+  render();
+};
+$('dl').onclick=()=>{
+  if(!outBlob)return;
+  const a=document.createElement('a');a.href=URL.createObjectURL(outBlob);a.download=outName;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+};
+$('reset').onclick=()=>{pdfFile=null;files=[];outBlob=null;say('');render()};
+render();
+</script>
+</body>
+</html>
