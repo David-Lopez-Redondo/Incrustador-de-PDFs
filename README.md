@@ -1,4 +1,4 @@
-# PDF Embedder
+# Incrustador de PDFs
 
 Herramienta web para **incrustar archivos de cualquier tipo dentro de un PDF** (Word, Excel, PowerPoint, imágenes, texto, otros PDF…) directamente desde el navegador.
 
@@ -40,4 +40,4 @@ Versión web de un script de escritorio en Python (Tkinter + PyMuPDF).
 
 ## Autoría
 
-Software developed by **DLR**.
+Software desarrollado por **DLR**.
